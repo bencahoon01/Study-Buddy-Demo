@@ -9,7 +9,7 @@ class StudyBuddyController:
     def __init__(self):
         self.users = {}  # In-memory user storage
         self.sessions = []  # In-memory session storage
-        self.view = view.CLIView()
+        self.view = view.StudyBuddyView()
         self.current_user = None
 
     def run(self):
