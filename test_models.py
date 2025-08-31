@@ -42,5 +42,30 @@ class TestUser(unittest.TestCase):
         self.assertEqual(slot.day, "Tuesday")
         self.assertEqual(slot.time, 16)
 
+
+class TestStudySession(unittest.TestCase):
+    def setUp(self):
+        self.course = Course("CPSC2120")
+        self.slot = AvailabilitySlot("Monday", 14)
+        self.organizer = User("alice", "pw1", "Alice")
+        self.invitee = User("bob", "pw2", "Bob")
+        self.session = StudySession(self.course, self.slot, self.organizer, self.invitee)
+
+    def test_study_session_creation(self):
+        self.assertEqual(self.session.status, "Pending")
+        self.assertEqual(self.session.course, self.course)
+        self.assertEqual(self.session.slot, self.slot)
+        self.assertEqual(self.session.organizer, self.organizer)
+        self.assertEqual(self.session.invitee, self.invitee)
+
+    def test_confirm_session(self):
+        self.session.confirm()
+        self.assertEqual(self.session.status, "Confirmed")
+
+    def test_decline_session(self):
+        self.session.decline()
+        self.assertEqual(self.session.status, "Declined")
+
+
 if __name__ == "__main__":
     unittest.main()
