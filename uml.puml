@@ -1,0 +1,102 @@
+#Using PlantUML for this file to view UML download plantuml addon for IDE or code editor.
+
+
+@startuml
+' skinparam linetype ortho
+
+' --- Models ---
+package "models" {
+  class Course {
+    +code: str
+  }
+
+  class AvailabilitySlot {
+    +day: str
+    +time: int
+  }
+
+  class User {
+    +username: str
+    +password: str
+    +name: str
+    +add_course(course_code: str)
+    +set_availability(day: str, time: int)
+  }
+
+  class StudySession {
+    +status: str
+    +confirm()
+    +decline()
+  }
+}
+
+' --- Controller ---
+package "controller" {
+  class StudyBuddyController {
+    -users: dict
+    -sessions: list
+    -current_user: User
+    +run()
+    +create_profile()
+    +login()
+    +logout()
+    +manage_courses()
+    +manage_availability()
+    +find_partner_flow()
+    +schedule_session()
+    +manage_sessions()
+  }
+}
+
+' --- View ---
+package "view" {
+  class MainWindow
+  class LoginWidget
+  class MainMenu
+  class CoursePage
+  class AvailabilityPage
+  class PartnerPage
+  class SessionPage
+
+  MainWindow --|> QMainWindow
+  LoginWidget --|> QWidget
+  MainMenu --|> QWidget
+  CoursePage --|> QWidget
+  AvailabilityPage --|> QWidget
+  PartnerPage --|> QWidget
+  SessionPage --|> QWidget
+}
+
+' --- Relationships ---
+StudyBuddyController --> models.User : uses
+StudyBuddyController --> models.StudySession : uses
+StudyBuddyController --> view.MainWindow : uses
+
+MainWindow -> LoginWidget
+MainWindow -> MainMenu
+
+LoginWidget -> StudyBuddyController
+MainMenu -> StudyBuddyController
+CoursePage -> StudyBuddyController
+AvailabilityPage -> StudyBuddyController
+PartnerPage -> StudyBuddyController
+SessionPage -> StudyBuddyController
+
+
+User "1" *-- "0..*" Course
+User "1" *-- "0..*" AvailabilitySlot
+StudySession "1" *-- "1" Course
+StudySession "1" *-- "1" AvailabilitySlot
+StudySession "1" -- "2" User
+
+' --- Main ---
+package "main" {
+  class main {
+    +main()
+  }
+  main --> StudyBuddyController
+  main --> MainWindow
+}
+
+
+@enduml

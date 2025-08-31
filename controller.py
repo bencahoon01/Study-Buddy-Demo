@@ -78,59 +78,19 @@ class StudyBuddyController:
 
     def _suggest_matches(self, target_course_code):
         matches = []
-        # Find current user's availability and courses
         current_user_availability = self.current_user.availability
 
         for user in self.users.values():
             if user.username == self.current_user.username:
                 continue
 
-            # Check if user is in the target course
             is_enrolled = any(c.code == target_course_code for c in user.courses)
 
             if is_enrolled:
-                # Check for overlapping availability
                 for my_slot in current_user_availability:
                     is_overlap = any(o.day == my_slot.day and o.time == my_slot.time for o in user.availability)
                     if is_overlap:
                         matches.append(user)
-                        break
+                        break  # Only need one overlapping slot to match
+
         return matches
-
-    def schedule_session(self):
-        p_user, c_code, day, time = self.view.get_session_details()
-
-        # Validations
-        if p_user not in self.users:
-            self.view.display_message("Partner username not found.")
-            return
-
-        invitee = self.users[p_user]
-
-        # Create session object
-        course = models.Course(c_code)
-        slot = models.AvailabilitySlot(day, time)
-        session = models.StudySession(course, slot, self.current_user, invitee)
-        self.sessions.append(session)
-        self.view.display_message(f"Invitation sent to {p_user}.")
-
-    def manage_sessions(self):
-        user_sessions = [s for s in self.sessions if s.organizer == self.current_user or s.invitee == self.current_user]
-        self.view.display_sessions(user_sessions, self.current_user.username)
-
-        pending_invites = [s for s in user_sessions if s.invitee == self.current_user and s.status == "Pending"]
-
-        if pending_invites:
-            if input("\nManage pending invitations? (y/n): ").lower() == 'y':
-                index, action = self.view.get_session_confirmation_choice()
-                # Find the actual session object to update
-                session_to_manage = user_sessions[index]
-                if session_to_manage.invitee == self.current_user and session_to_manage.status == "Pending":
-                    if action == 'confirm':
-                        session_to_manage.confirm()
-                        self.view.display_message("Session confirmed.")
-                    elif action == 'decline':
-                        session_to_manage.decline()
-                        self.view.display_message("Session declined.")
-                else:
-                    self.view.display_message("Invalid selection.")
